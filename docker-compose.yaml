@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  php:
+    image: php_alpine
+    build:
+      dockerfile: "Dockerfile"
+    container_name: "Backend"
+    ports:
+      - "8443:8000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres
+    container_name: "Postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      DB_DATABASE: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ${DB_LOCAL_DIR}
