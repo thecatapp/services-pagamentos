@@ -36,6 +36,12 @@ class CadastroPessoaRequest extends FormRequest
                 'unique:pessoas,cpf_cnpj'
             ],
             'email' => ['required', 'unique:contatos,email'],
+            'saldo_inicial' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:999999',
+            ],
         ];
     }
 
