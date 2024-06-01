@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PessoaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -22,5 +23,9 @@ Route::match(
 
 Route::group(['prefix' => 'usuario'], function () {
     Route::post('/info', [\App\Http\Controllers\UserController::class, 'info'])->middleware("auth:api");
+});
+
+Route::group(['prefix' => 'pessoa'], function () {
+    Route::post('/cadastrarPessoa', [PessoaController::class, 'cadastrarPessoa'])->middleware("auth:api");
 });
 
