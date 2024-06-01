@@ -5,7 +5,9 @@ namespace Tests\Feature;
 use App\Enum\EnumTipoPessoa;
 use App\Helpers\HelperTipoPessoa;
 use App\Http\Services\ServicesPessoa;
+use App\Models\Contato;
 use App\Models\Pessoa;
+use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
@@ -72,5 +74,40 @@ class PessoaTest extends TestCase
         $this->assertGreaterThan($countPessoa, $newCountPessoa);
 
         $this->assertInstanceOf(Pessoa::class, $Pessoa);
+
+        $this->assertNotEmpty($Pessoa);
+        $this->assertNotNull($Pessoa);
+    }
+
+    public function testCadastrarContato()
+    {
+        $Pessoa = $this->ServicesPessoa->cadastrarPessoas($this->payloadBasico);
+
+        $Contato = $this->ServicesPessoa->cadastrarContato($Pessoa, $this->payloadBasico["email"]);
+
+        $this->assertInstanceOf(Contato::class, $Contato);
+
+        $this->assertNotEmpty($Contato);
+        $this->assertNotNull($Contato);
+    }
+
+    public function testCadastrarUser()
+    {
+        $Pessoa = $this->ServicesPessoa->cadastrarPessoas($this->payloadBasico);
+
+        $User = $this->ServicesPessoa->cadastrarUser($Pessoa, $this->payloadBasico["email"]);
+
+        $this->assertInstanceOf(User::class, $User);
+
+        $this->assertNotEmpty($User);
+        $this->assertNotNull($User);
     }
 }
+
+
+
+
+
+
+
+

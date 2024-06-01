@@ -21,3 +21,4 @@ run_serve.bat
 run_reset_banco.bat
 run.sh
 run_banco.sh
+.idea/

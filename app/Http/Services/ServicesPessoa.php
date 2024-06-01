@@ -3,7 +3,10 @@
 namespace App\Http\Services;
 
 use App\Helpers\HelperTipoPessoa;
+use App\Models\Contato;
 use App\Models\Pessoa;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class ServicesPessoa
 {
@@ -12,23 +15,42 @@ class ServicesPessoa
     {
     }
 
-    public function tratarDadosPessoa(array $dados)
+    public function tratarDadosPessoa(array $dados): array
     {
         return [
             "nm_pessoa" => $dados["nm_pessoa"],
             "cpf_cnpj" => $dados["cpf_cnpj"],
-            "email" => $dados["email"],
             "tp_pessoa" => HelperTipoPessoa::identificarTipoPessoa($dados["cpf_cnpj"])->value,
         ];
     }
     
     public function cadastrarPessoas(array $dados) : Pessoa
     {
-
         $result = $this->tratarDadosPessoa($dados);
 
         return $this->Pessoa->create(
             $result
         );
+    }
+
+    public function cadastrarContato(Pessoa $Pessoa, $email)
+    {
+
+        return Contato::create(
+            [
+                "email" => $email,
+                "pessoa_id" => $Pessoa->id
+            ]
+        );
+    }
+
+
+    public function cadastrarUser(Pessoa $Pessoa, string $email)
+    {
+        return User::create([
+            'name' => $Pessoa->nm_pessoa,
+            'email' => $email,
+            'password' => Hash::make('password123')
+        ]);
     }
 }
