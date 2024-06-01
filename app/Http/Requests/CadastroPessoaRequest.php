@@ -30,7 +30,7 @@ class CadastroPessoaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => ['required'],
+            'nm_pessoa' => ['required'],
             'cpf_cnpj' => [
                 'required',
                 'unique:pessoas,cpf_cnpj'
