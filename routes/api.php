@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PessoaController;
+use App\Http\Controllers\TransferenciaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,5 +28,9 @@ Route::group(['prefix' => 'usuario'], function () {
 
 Route::group(['prefix' => 'pessoa'], function () {
     Route::post('/cadastrarPessoa', [PessoaController::class, 'cadastrarPessoa'])->middleware("auth:api");
+});
+
+Route::group(['prefix' => 'transferencia'], function () {
+    Route::post('/transferirValores', [TransferenciaController::class, 'transferirValores'])->middleware("auth:api");
 });
 

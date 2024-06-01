@@ -2,6 +2,7 @@
 
 namespace App\Http\Services;
 
+use App\Helpers\HelpersFile;
 use App\Helpers\HelperTipoPessoa;
 use App\Models\Contato;
 use App\Models\Pessoa;
