@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enum\EnumTipoPessoa;
-use App\Helpers\HelperTipoPessoa;
+use App\Helpers\HelpersFile;
 use App\Http\Services\ServicesPessoa;
 use App\Models\Contato;
 use App\Models\Pessoa;
@@ -42,7 +42,7 @@ class PessoaTest extends TestCase
 
     public function testIdentificarTipoPessoa()
     {
-        $result = HelperTipoPessoa::identificarTipoPessoa($this->payloadBasico["cpf_cnpj"]);
+        $result = HelpersFile::identificarTipoPessoa($this->payloadBasico["cpf_cnpj"]);
 
         $this->assertInstanceOf(EnumTipoPessoa::class, $result);
 

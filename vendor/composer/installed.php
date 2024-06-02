@@ -712,6 +712,15 @@
             'aliases' => array(),
             'dev_requirement' => true,
         ),
+        'php-amqplib/php-amqplib' => array(
+            'pretty_version' => 'v3.6.2',
+            'version' => '3.6.2.0',
+            'reference' => 'cb514530ce45a6d2f636be5196010c47c3bcf6e0',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../php-amqplib/php-amqplib',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'php-http/message-factory-implementation' => array(
             'dev_requirement' => false,
             'provided' => array(
@@ -1421,6 +1430,21 @@
             'reference' => 'c42125b83a4fa63b187fdf29f9c93cb7733da30c',
             'type' => 'library',
             'install_path' => __DIR__ . '/../tijsverkoyen/css-to-inline-styles',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'videlalvaro/php-amqplib' => array(
+            'dev_requirement' => false,
+            'replaced' => array(
+                0 => 'v3.6.2',
+            ),
+        ),
+        'vladimir-yuldashev/laravel-queue-rabbitmq' => array(
+            'pretty_version' => 'v14.1.0',
+            'version' => '14.1.0.0',
+            'reference' => '3d58891479582ebe988df7c3303efa4784dabccd',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../vladimir-yuldashev/laravel-queue-rabbitmq',
             'aliases' => array(),
             'dev_requirement' => false,
         ),

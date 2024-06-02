@@ -2,9 +2,11 @@
 
 namespace App\Http\Services;
 
+use App\Helpers\HelpersFile;
 use App\Helpers\HelperTipoPessoa;
 use App\Models\Contato;
 use App\Models\Pessoa;
+use App\Models\Saldo;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -44,13 +46,24 @@ class ServicesPessoa
         );
     }
 
-
     public function cadastrarUser(Pessoa $Pessoa, string $email)
     {
         return User::create([
             'name' => $Pessoa->nm_pessoa,
             'email' => $email,
-            'password' => Hash::make('password123')
+            'password' => Hash::make('password123'),
+            'pessoa_id' =>$Pessoa->id
+
         ]);
+    }
+
+    public function iniciarSaldo(Pessoa $Pessoa, float $saldoInicial)
+    {
+        Saldo::create(
+            [
+                "pessoa_id" => $Pessoa->id,
+                "vl_saldo" => $saldoInicial
+            ]
+        );
     }
 }

@@ -1,0 +1,20 @@
+{
+  "transferencias":[
+    {
+      "pessoa_id":1,
+      "valor": 250
+    },
+    {
+      "pessoa_id":1,
+      "valor": 8012.50
+    },
+    {
+      "pessoa_id":1,
+      "valor": 133.7
+    },
+    {
+      "pessoa_id":1,
+      "valor": 503.26
+    }
+  ]
+}
