@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CadastroPessoaRequest;
 use App\Http\Services\ServicesPessoa;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Response;
 
 
@@ -39,9 +40,11 @@ class PessoaController extends Controller
 
             DB::rollBack();
 
+            Log::error($Throwable->getMessage());
+
             return Response::json(
                 [
-                    "data" => $Throwable->getMessage(),
+                    "data" => "Algo deu errado!",
                 ], 500
             );
 

@@ -8,11 +8,16 @@ use App\Exceptions\TransferenciaException;
 use App\Helpers\HelpersFile;
 use App\Http\Services\ServicesTransferencia;
 
+use App\Models\Saldo;
+use App\Models\Transferencia_item;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Tests\TestCase;
 
 class TransferenciasTest extends TestCase
 {
+    use DatabaseTransactions;
+
     protected Transferencia | null $Transferencia;
     protected array | null $jsonBase;
 
@@ -122,4 +127,57 @@ class TransferenciasTest extends TestCase
 
         $this->ServicesTransferencia->validarSaldoDisponivel(999999.99);
     }
+
+    public function testSalvarTransferencia()
+    {
+        auth()->loginUsingId(10);
+
+        $result = $this->ServicesTransferencia->criarListaDeTransferencia($this->jsonBase);
+
+        $Transferencia = $this->ServicesTransferencia->salvarTransferencia($result);
+
+        $this->assertInstanceOf(\App\Models\Transferencia::class, $Transferencia);
+
+        $this->assertNotNull($Transferencia->id);
+        $this->assertNotNull($Transferencia->vl_total);
+        $this->assertNotNull($Transferencia->pessoa_origem);
+
+        $this->assertIsInt($Transferencia->pessoa_origem);
+        $this->assertIsInt($Transferencia->id);
+    }
+
+    public function testSalvarItensTransferencia()
+    {
+        auth()->loginUsingId(10);
+
+        $result = $this->ServicesTransferencia->criarListaDeTransferencia($this->jsonBase);
+
+        $Transferencia = $this->ServicesTransferencia->salvarTransferencia($result);
+
+        $this->ServicesTransferencia->salvarItensTransferencia($Transferencia, $result["transferencias"]);
+
+        $countItens = Transferencia_item::all()->count();
+
+        $this->assertEquals(count($this->jsonBase["transferencias"]), $countItens);
+
+    }
+
+    public function testSalvarNovoSaldo()
+    {
+        auth()->loginUsingId(10);
+
+        $saldoAtual = Saldo::where("bo_ativo", 1)->where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
+
+        $result = $this->ServicesTransferencia->criarListaDeTransferencia($this->jsonBase);
+
+        $Transferencia = $this->ServicesTransferencia->salvarTransferencia($result);
+
+        $this->ServicesTransferencia->salvarNovoSaldo($Transferencia, $result["valorTotal"]);
+
+        $novoSaldo = Saldo::where("bo_ativo", 1)->where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
+
+        $this->assertNotEquals($saldoAtual, $novoSaldo);
+        $this->assertGreaterThan($novoSaldo, $saldoAtual);
+    }
+
 }

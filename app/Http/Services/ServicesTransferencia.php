@@ -3,7 +3,9 @@
 namespace App\Http\Services;
 
 use App\Enum\EnumMensagensDeErro;
+use App\Enum\EnumSaldo;
 use App\Exceptions\TransferenciaException;
+use App\Integrations\RabbitMQ;
 use App\Models\Saldo;
 use App\Models\Transferencia;
 use App\Models\Transferencia_item;
@@ -42,7 +44,7 @@ class ServicesTransferencia
         return $listarDeTransferencia;
     }
 
-    public function validarSaldoDisponivel(float $valorTransferencia)
+    public function validarSaldoDisponivel(float $valorTransferencia): bool
     {
         $saldoDisponivel = Saldo::where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
 
@@ -51,5 +53,65 @@ class ServicesTransferencia
         }
 
         return true;
+    }
+
+    public function verificarConexao(): bool
+    {
+        $Rabbit = new RabbitMQ();
+
+        return $Rabbit->verificarConexao();
+    }
+
+    public function salvarTransferencia(array $dadosTransferencia) : Transferencia
+    {
+        return Transferencia::create(
+            [
+                "vl_total" => $dadosTransferencia["valorTotal"],
+                "pessoa_origem" => auth()->user()->pessoa_id
+            ]
+        );
+    }
+
+    public function salvarItensTransferencia(Transferencia $Transferencia, array $itensTransferencia): void
+    {
+        Arr::map($itensTransferencia, function(\stdClass $item) use (&$Transferencia){
+
+            Transferencia_item::create(
+                [
+                    "pessoa_destino" => $item->pessoa_id,
+                    "transferencia_id" => $Transferencia->id,
+                    "vl_transferencia" =>$item->valor
+                ]
+            );
+        });
+    }
+
+    public function salvarNovoSaldo(Transferencia $Transferencia, float $valorTotal)
+    {
+
+        $saldoAtual = $this->recuperarSaldoAtual();
+
+        $this->desativarSaldoAnterior();
+
+        Saldo::create(
+            [
+                "vl_saldo" => $saldoAtual - $Transferencia->vl_total,
+                "pessoa_id" => auth()->user()->pessoa_id,
+                "bo_ativo" => EnumSaldo::ATIVO->value
+            ]
+        );
+
+    }
+
+    private function desativarSaldoAnterior(): void
+    {
+        Saldo::where("bo_ativo", 1)
+            ->where("pessoa_id", auth()->user()->pessoa_id)
+            ->update(["bo_ativo" => EnumSaldo::DESATIVADO->value]);
+    }
+
+    private function recuperarSaldoAtual()
+    {
+        return Saldo::where("bo_ativo", 1)->where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
     }
 }
