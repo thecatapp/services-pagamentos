@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Entities\Transferencia;
+use App\Enum\EnumMensagensDeErro;
 use App\Exceptions\TransferenciaException;
 use App\Helpers\HelpersFile;
 use App\Http\Services\ServicesTransferencia;
@@ -99,8 +100,26 @@ class TransferenciasTest extends TestCase
         $this->ServicesTransferencia->criarListaDeTransferencia($this->jsonBase);
     }
 
-    public function testValidarSaldo()
+    public function testValidarSaldoDisponivel()
     {
+        auth()->loginUsingId(10);
 
+        $result = $this->ServicesTransferencia->validarSaldoDisponivel(1337);
+
+        $this->assertIsBool($result);
+        $this->assertTrue($result);
+
+        $this->assertNotEmpty($result);
+        $this->assertNotNull($result);
+    }
+    public function testReceberExceptionAoValidarSaldoDisponivel()
+    {
+        auth()->loginUsingId(10);
+
+        $this->expectException(TransferenciaException::class);
+        $this->expectExceptionCode(Response::HTTP_CONFLICT);
+        $this->expectExceptionMessage(EnumMensagensDeErro::SALDO_INSUFICIENTE->value);
+
+        $this->ServicesTransferencia->validarSaldoDisponivel(999999.99);
     }
 }

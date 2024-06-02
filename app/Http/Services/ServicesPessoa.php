@@ -51,7 +51,9 @@ class ServicesPessoa
         return User::create([
             'name' => $Pessoa->nm_pessoa,
             'email' => $email,
-            'password' => Hash::make('password123')
+            'password' => Hash::make('password123'),
+            'pessoa_id' =>$Pessoa->id
+
         ]);
     }
 

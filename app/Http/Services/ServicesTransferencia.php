@@ -2,7 +2,9 @@
 
 namespace App\Http\Services;
 
+use App\Enum\EnumMensagensDeErro;
 use App\Exceptions\TransferenciaException;
+use App\Models\Saldo;
 use App\Models\Transferencia;
 use App\Models\Transferencia_item;
 use Illuminate\Http\Response;
@@ -15,7 +17,7 @@ class ServicesTransferencia
         protected  Transferencia_item $TransferenciaItem,
     ){}
 
-    public function criarListaDeTransferencia(array $dados)
+    public function criarListaDeTransferencia(array $dados): array
     {
         $listarDeTransferencia = [
             "valorTotal" => 0 ,
@@ -38,5 +40,16 @@ class ServicesTransferencia
         });
 
         return $listarDeTransferencia;
+    }
+
+    public function validarSaldoDisponivel(float $valorTransferencia)
+    {
+        $saldoDisponivel = Saldo::where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
+
+        if ($saldoDisponivel < $valorTransferencia){
+            throw new TransferenciaException(EnumMensagensDeErro::SALDO_INSUFICIENTE->value, Response::HTTP_CONFLICT);
+        }
+
+        return true;
     }
 }
