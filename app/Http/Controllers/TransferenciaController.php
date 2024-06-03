@@ -33,7 +33,7 @@ class TransferenciaController extends Controller
 
                 $Transferencia = $this->TransferenciaService->salvarTransferencia($listaDeTransferencia);
 
-                $listaDeTransferencia["transferencia_id"] = $Transferencia->id;
+                $listaDeTransferencia["pessoa_origem"] = $Transferencia->pessoa_origem;
                 
                 $this->TransferenciaService->salvarItensTransferencia($Transferencia, $listaDeTransferencia["transferencias"]);
 

@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Entities\Transferencia;
+use App\Entitys\Nfse\Servico;
 use App\Enum\EnumMensagensDeErro;
 use App\Exceptions\TransferenciaException;
 use App\Helpers\HelpersFile;
@@ -10,6 +11,8 @@ use App\Http\Services\ServicesTransferencia;
 
 use App\Models\Saldo;
 use App\Models\Transferencia_item;
+use App\Providers\ServicesTransferenciasProvider;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\Response;
 use Tests\TestCase;
@@ -194,11 +197,17 @@ class TransferenciasTest extends TestCase
         $this->ServicesTransferencia->enviarDadosParaFilaDeProcessamento($result);
 
     }
-    
-    public function testReceberValoresTransferido()
-    {
-        $this->ServicesTransferencia->receberValoresTransferidos($this->jsonRabbit);
-    }
 
+    public function testExtornarValores()
+    {
+        $saldoAntigo = Saldo::where("bo_ativo", 1)->where("pessoa_id", 1)->first()->vl_saldo;
+
+        $this->ServicesTransferencia->reembolsarTransferencia($this->jsonRabbit);
+
+        $novoSaldo = Saldo::where("bo_ativo", 1)->where("pessoa_id", 1)->first()->vl_saldo;
+
+
+        $this->assertGreaterThan($saldoAntigo, $novoSaldo);
+    }
 
 }

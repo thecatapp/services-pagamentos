@@ -4,6 +4,8 @@ namespace App\Http\Services;
 
 use App\Enum\EnumMensagensDeErro;
 use App\Enum\EnumSaldo;
+use App\Enum\EnumTipoTransferencia;
+use App\Enum\EnumUser;
 use App\Exceptions\TransferenciaException;
 use App\Integrations\RabbitMQ;
 use App\Models\Saldo;
@@ -129,30 +131,33 @@ class ServicesTransferencia
 
     public function receberValoresTransferidos(\stdClass $dados)
     {
-
         DB::beginTransaction();
 
-        Arr::map($dados->data->transferencias, function($item){
+        try {
 
-            $Transferecia = new \App\Entities\Transferencia();
+            Arr::map($dados->data->transferencias, function($item) use($dados){
 
-            $arrayItem = (array) $item;
+                $Transferecia = new \App\Entities\Transferencia();
 
-            $Transferecia->elaborarObjeto($arrayItem);
+                $arrayItem = (array) $item;
 
-            if (!$Transferecia->infoError()){
+                $Transferecia->elaborarObjeto($arrayItem);
 
-                $SaldoPessoa = $this->recuperarSaldoAtualPorPessoa($arrayItem["pessoa_id"]);
+                if (!$Transferecia->infoError()){
 
-                $this->atualizarSaldoPorPessoa($SaldoPessoa, $arrayItem["valor"]);
+                    $SaldoPessoa = $this->recuperarSaldoAtualPorPessoa($arrayItem["pessoa_id"]);
 
-                DB::commit();
-            } else {
-                DB::rollBack();
-            }
-        });
+                    $this->atualizarSaldoPorPessoa($SaldoPessoa, $arrayItem["valor"]);
 
+                    DB::commit();
+                }
+            });
+        } catch (\Throwable $Throwable){
 
+            DB::rollBack();
+
+            $this->reembolsarTransferencia($dados);
+        }
     }
 
     private function recuperarSaldoAtualPorPessoa(int $pessoaId)
@@ -174,6 +179,32 @@ class ServicesTransferencia
                 "bo_ativo" => EnumSaldo::ATIVO->value
             ]
         );
+    }
+
+    public function reembolsarTransferencia($item): void
+    {
+        $this->criarTransferenciaTipoReembolso($item);
+        $this->reembolsarValor($item);
+    }
+
+    private function criarTransferenciaTipoReembolso($item): void
+    {
+        $this->Transferencia::create(
+            [
+                "vl_total" => $item->data->valorTotal,
+                "pessoa_origem" => EnumUser::ADMINISTRADOR->value,
+                "tp_transferencia" => EnumTipoTransferencia::REEMBOLSO->value
+            ]
+        );
+    }
+
+    private function reembolsarValor($item): void
+    {
+        $Saldo = Saldo::where("pessoa_id", $item->data->pessoa_origem)->where("bo_ativo", EnumSaldo::ATIVO->value)->first();
+
+        $Saldo->vl_saldo = $Saldo->vl_saldo + $item->data->valorTotal;
+
+        $Saldo->save();
     }
 
 
