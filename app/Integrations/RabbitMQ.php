@@ -9,6 +9,7 @@ use PhpAmqpLib\Connection\AMQPSocketConnection;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
+use Ramsey\Uuid\Nonstandard\Uuid;
 
 class RabbitMQ
 {
@@ -60,7 +61,15 @@ class RabbitMQ
             $this->createConnection();
             $this->channel->queue_declare($row_name, false, false, false, false);
             if (is_array($message)) {
-                $message = json_encode($message);
+
+                $payload = [
+                    'job' => 'App\Jobs\ConsumirFilaRabbit',
+                    'uuid' => (string) Uuid::uuid4(),
+                    'data' => $message,
+                    'attempts' => 0,
+                ];
+
+                $message = json_encode($payload);
             }
 
             $msg = new AMQPMessage($message);
@@ -112,7 +121,6 @@ class RabbitMQ
             $this->closeConnection();
             return true;
         } catch (\Exception $e) {
-            $this->failed("[RabbitMQ] Falha ao Executar a fila.\nCanal:$row_name\nMessage:{$e->getMessage()}. Line:{$e->getLine()}");
             $this->closeConnection();
             return false;
         }

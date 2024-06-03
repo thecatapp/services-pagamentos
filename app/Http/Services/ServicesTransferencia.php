@@ -11,6 +11,7 @@ use App\Models\Transferencia;
 use App\Models\Transferencia_item;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
@@ -20,6 +21,7 @@ class ServicesTransferencia
     public function __construct(
         protected Transferencia $Transferencia,
         protected  Transferencia_item $TransferenciaItem,
+        protected \App\Entities\Transferencia $TransferenciaEntity
     ){}
 
     public function criarListaDeTransferencia(array $dados): array
@@ -89,7 +91,7 @@ class ServicesTransferencia
         });
     }
 
-    public function salvarNovoSaldo(Transferencia $Transferencia, float $valorTotal)
+    public function salvarNovoSaldo(Transferencia $Transferencia)
     {
 
         $saldoAtual = $this->recuperarSaldoAtual();
@@ -125,25 +127,54 @@ class ServicesTransferencia
         $Rabbit->sendQueue("fila_transferencia", $dados);
     }
 
-    public function consumirFila()
+    public function receberValoresTransferidos(\stdClass $dados)
     {
-        $connection = new AMQPStreamConnection(env("RABBITMQ_HOST"), env("RABBITMQ_PORT"), env("RABBITMQ_LOGIN"), env("RABBITMQ_PASSWORD"));
-        $channel = $connection->channel();
 
-        $callback = function($msg) {
-            Log::info($msg->body);
-            $msg->ack();
-        };
+        DB::beginTransaction();
 
-        $channel->basic_consume('fila_transferencia', '', false, false, false, false, $callback);
+        Arr::map($dados->data->transferencias, function($item){
 
-        // Wait for the message to be consumed
-        while($channel->is_consuming()) {
-            $channel->wait();
-        }
+            $Transferecia = new \App\Entities\Transferencia();
 
-        $channel->close();
-        $connection->close();
+            $arrayItem = (array) $item;
+
+            $Transferecia->elaborarObjeto($arrayItem);
+
+            if (!$Transferecia->infoError()){
+
+                $SaldoPessoa = $this->recuperarSaldoAtualPorPessoa($arrayItem["pessoa_id"]);
+
+                $this->atualizarSaldoPorPessoa($SaldoPessoa, $arrayItem["valor"]);
+
+                DB::commit();
+            } else {
+                DB::rollBack();
+            }
+        });
+
+
     }
+
+    private function recuperarSaldoAtualPorPessoa(int $pessoaId)
+    {
+        return Saldo::where("bo_ativo", 1)->where("pessoa_id", $pessoaId)->first();
+    }
+
+    private function atualizarSaldoPorPessoa($SaldoPessoa, mixed $valor)
+    {
+
+        $SaldoPessoa->bo_ativo = EnumSaldo::DESATIVADO->value;
+
+        $SaldoPessoa->save();
+
+        Saldo::create(
+            [
+                "vl_saldo" => $valor + $SaldoPessoa->vl_saldo,
+                "pessoa_id" => $SaldoPessoa->pessoa_id,
+                "bo_ativo" => EnumSaldo::ATIVO->value
+            ]
+        );
+    }
+
 
 }

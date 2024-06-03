@@ -2,8 +2,6 @@
 
 namespace App\Entities;
 
-use App\Enum\EnumTransferenciaValida;
-
 abstract  class AbstractTransferencia
 {
     protected int $pessoaDestino;
@@ -12,7 +10,5 @@ abstract  class AbstractTransferencia
 
     protected bool $error = true;
     protected string $msgError = "";
-
-    protected EnumTransferenciaValida $transferenciaValida;
 
 }

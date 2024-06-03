@@ -16,7 +16,9 @@ class ServicesTransferenciasProvider extends ServiceProvider
             $Transferencia = new Transferencia();
             $TransferenciaItens = new Transferencia_item();
 
-            return new ServicesTransferencia($Transferencia, $TransferenciaItens);
+            $TransferenciaEntity = new \App\Entities\Transferencia();
+
+            return new ServicesTransferencia($Transferencia, $TransferenciaItens, $TransferenciaEntity);
         });
     }
 }

@@ -30,12 +30,14 @@ class TransferenciaController extends Controller
 
 
             if ($conexaoPronta && $saldoDisponivel) {
+
                 $Transferencia = $this->TransferenciaService->salvarTransferencia($listaDeTransferencia);
 
+                $listaDeTransferencia["transferencia_id"] = $Transferencia->id;
+                
                 $this->TransferenciaService->salvarItensTransferencia($Transferencia, $listaDeTransferencia["transferencias"]);
 
-                $this->TransferenciaService->salvarNovoSaldo($Transferencia, $listaDeTransferencia["valorTotal"]);
-
+                $this->TransferenciaService->salvarNovoSaldo($Transferencia);
 
                 $this->TransferenciaService->enviarDadosParaFilaDeProcessamento($listaDeTransferencia);
 

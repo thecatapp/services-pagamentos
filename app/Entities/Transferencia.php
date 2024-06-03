@@ -65,5 +65,4 @@ class Transferencia extends AbstractTransferencia implements InterfaceValor, Int
         return json_encode($array);
     }
 
-
 }
