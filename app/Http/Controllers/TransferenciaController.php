@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Services\ServicesTransferencia;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,7 @@ class TransferenciaController extends Controller
     {
     }
 
-    public function transferirValores(Request $request): \Illuminate\Http\JsonResponse
+    public function transferirValores(Request $request): JsonResponse
     {
 
         DB::beginTransaction();

@@ -93,7 +93,7 @@ class ServicesTransferencia
         });
     }
 
-    public function salvarNovoSaldo(Transferencia $Transferencia)
+    public function salvarNovoSaldo(Transferencia $Transferencia): void
     {
 
         $saldoAtual = $this->recuperarSaldoAtual();
@@ -122,14 +122,14 @@ class ServicesTransferencia
         return Saldo::where("bo_ativo", 1)->where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
     }
 
-    public function enviarDadosParaFilaDeProcessamento(array $dados)
+    public function enviarDadosParaFilaDeProcessamento(array $dados): void
     {
         $Rabbit = new RabbitMQ();
 
         $Rabbit->sendQueue("fila_transferencia", $dados);
     }
 
-    public function receberValoresTransferidos(\stdClass $dados)
+    public function receberValoresTransferidos(\stdClass $dados): void
     {
         DB::beginTransaction();
 
@@ -156,6 +156,8 @@ class ServicesTransferencia
 
             DB::rollBack();
 
+            Log::error("Erro ao atualizar valores ".$Throwable->getMessage());
+
             $this->reembolsarTransferencia($dados);
         }
     }
@@ -165,7 +167,7 @@ class ServicesTransferencia
         return Saldo::where("bo_ativo", 1)->where("pessoa_id", $pessoaId)->first();
     }
 
-    private function atualizarSaldoPorPessoa($SaldoPessoa, mixed $valor)
+    private function atualizarSaldoPorPessoa($SaldoPessoa, mixed $valor): void
     {
 
         $SaldoPessoa->bo_ativo = EnumSaldo::DESATIVADO->value;

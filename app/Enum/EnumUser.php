@@ -4,5 +4,5 @@ namespace App\Enum;
 
 enum EnumUser : int
 {
-    case ADMINISTRADOR = 10;
+    case ADMINISTRADOR = 51;
 }
