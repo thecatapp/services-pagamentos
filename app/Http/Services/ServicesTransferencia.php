@@ -11,6 +11,9 @@ use App\Models\Transferencia;
 use App\Models\Transferencia_item;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Queue;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
 
 class ServicesTransferencia
 {
@@ -114,4 +117,33 @@ class ServicesTransferencia
     {
         return Saldo::where("bo_ativo", 1)->where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
     }
+
+    public function enviarDadosParaFilaDeProcessamento(array $dados)
+    {
+        $Rabbit = new RabbitMQ();
+
+        $Rabbit->sendQueue("fila_transferencia", $dados);
+    }
+
+    public function consumirFila()
+    {
+        $connection = new AMQPStreamConnection(env("RABBITMQ_HOST"), env("RABBITMQ_PORT"), env("RABBITMQ_LOGIN"), env("RABBITMQ_PASSWORD"));
+        $channel = $connection->channel();
+
+        $callback = function($msg) {
+            Log::info($msg->body);
+            $msg->ack();
+        };
+
+        $channel->basic_consume('fila_transferencia', '', false, false, false, false, $callback);
+
+        // Wait for the message to be consumed
+        while($channel->is_consuming()) {
+            $channel->wait();
+        }
+
+        $channel->close();
+        $connection->close();
+    }
+
 }

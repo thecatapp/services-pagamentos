@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreTransferenciaRequest;
-use App\Http\Requests\UpdateTransferenciaRequest;
 use App\Http\Services\ServicesTransferencia;
-use App\Models\Transferencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +15,7 @@ class TransferenciaController extends Controller
     {
     }
 
-    public function transferirValores(Request $request)
+    public function transferirValores(Request $request): \Illuminate\Http\JsonResponse
     {
 
         DB::beginTransaction();
@@ -31,21 +28,36 @@ class TransferenciaController extends Controller
 
             $conexaoPronta = $this->TransferenciaService->verificarConexao();
 
+
             if ($conexaoPronta && $saldoDisponivel) {
                 $Transferencia = $this->TransferenciaService->salvarTransferencia($listaDeTransferencia);
 
                 $this->TransferenciaService->salvarItensTransferencia($Transferencia, $listaDeTransferencia["transferencias"]);
 
                 $this->TransferenciaService->salvarNovoSaldo($Transferencia, $listaDeTransferencia["valorTotal"]);
+
+
+                $this->TransferenciaService->enviarDadosParaFilaDeProcessamento($listaDeTransferencia);
+
+                DB::commit();
+
+                return Response::json(
+                    [
+                        "data" => "Transferencia criada com sucesso",
+                    ], ResponseAlias::HTTP_ACCEPTED
+                );
+
+            } else {
+
+                DB::rollBack();
+
+                return Response::json(
+                    [
+                        "data" => "Por favor, confirme o saldo da conta e tente novamente mais tarde",
+                    ], ResponseAlias::HTTP_BAD_REQUEST
+                );
+
             }
-
-            DB::commit();
-
-            return Response::json(
-                [
-                    "data" => "Transferencia criada com sucesso",
-                ], ResponseAlias::HTTP_ACCEPTED
-            );
 
         }catch (\Throwable $Throwable){
             DB::rollBack();

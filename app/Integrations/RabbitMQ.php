@@ -12,26 +12,29 @@ use PhpAmqpLib\Wire\AMQPTable;
 
 class RabbitMQ
 {
-    private array $connection_settings;
+    private $connection_settings;
 
-    private AMQPChannel $channel;
+    private $channel;
 
-    private AMQPStreamConnection | null $connection = null;
+    private $connection;
 
     public function __construct(array $connection_settings = null)
     {
         if (!$connection_settings) {
             $this->connection_settings = [
-                'host' => env("RABBITMQ_HOST"),
-                'port' => env("RABBITMQ_PORT"),
-                'user' => env("RABBITMQ_LOGIN"),
-                'pass' => env("RABBITMQ_PASSWORD")
+                'host' => env('RABBITMQ_HOST'),
+                'port' => env('RABBITMQ_PORT'),
+                'user' => env('RABBITMQ_USER'),
+                'pass' => env('RABBITMQ_PASSWORD')
             ];
         }
     }
 
     public function createConnection()
     {
+        if ($this->connection instanceof AMQPSocketConnection) {
+            return true;
+        }
         $this->connection = new AMQPStreamConnection(
             $this->connection_settings['host'],
             $this->connection_settings['port'],
@@ -62,9 +65,12 @@ class RabbitMQ
 
             $msg = new AMQPMessage($message);
             $this->channel->basic_publish($msg, '', $row_name);
+
+            $this->closeConnection();
+            
             return true;
         } catch (\Exception $e) {
-            $this->failed("[RabbitMQ] Falha ao Enviar para fila.\nMessage:{$e->getMessage()}.Line:{$e->getLine()}");
+
             $this->closeConnection();
             return false;
         }
@@ -114,6 +120,7 @@ class RabbitMQ
 
     private function failed($msg)
     {
+//        Log::critical($msg);
         if (!empty($this->channel) && empty($this->connection)) {
             $this->closeConnection();
         }

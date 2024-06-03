@@ -37,7 +37,6 @@ class RabbitTest extends TestCase
 
     public function testConsumirFila()
     {
-
         $connection = new AMQPStreamConnection(env("RABBITMQ_HOST"), env("RABBITMQ_PORT"), env("RABBITMQ_LOGIN"), env("RABBITMQ_PASSWORD"));
         $channel = $connection->channel();
 
@@ -47,7 +46,7 @@ class RabbitTest extends TestCase
             $msg->ack();
         };
 
-        $channel->basic_consume('nome_da_fila', '', false, false, false, false, $callback);
+        $channel->basic_consume('fila_transferencia', '', false, false, false, false, $callback);
 
         // Wait for the message to be consumed
         while($channel->is_consuming()) {

@@ -180,4 +180,13 @@ class TransferenciasTest extends TestCase
         $this->assertGreaterThan($novoSaldo, $saldoAtual);
     }
 
+    public function testEnviarTransferenciaParaFila()
+    {
+        $result = $this->ServicesTransferencia->criarListaDeTransferencia($this->jsonBase);
+
+        $this->ServicesTransferencia->enviarDadosParaFilaDeProcessamento($result);
+
+    }
+
+
 }
