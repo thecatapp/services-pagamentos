@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('QUEUE_CONNECTION', 'sync'),
+    'default' => env('QUEUE_CONNECTION', 'rabbitmq'),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +70,31 @@ return [
             'block_for' => null,
             'after_commit' => false,
         ],
+
+        'rabbitmq' => [
+            'driver' => 'rabbitmq',
+            'hosts' => [
+                [
+                    'host' => env('RABBITMQ_HOST', 'rabbitmq'),
+                    'port' => env('RABBITMQ_PORT', 5672),
+                    'user' => env('RABBITMQ_USER', 'user'),
+                    'password' => env('RABBITMQ_PASSWORD', 'password'),
+                    'vhost' => env('RABBITMQ_VHOST', '/'),
+                ],
+            ],
+            'queue' => env('RABBITMQ_QUEUE', 'fila_transferencia'),
+            'options' => [
+                'ssl_options' => [
+                    'cafile' => env('RABBITMQ_SSL_CAFILE', null),
+                    'local_cert' => env('RABBITMQ_SSL_LOCALCERT', null),
+                    'local_key' => env('RABBITMQ_SSL_LOCALKEY', null),
+                    'verify_peer' => env('RABBITMQ_SSL_VERIFY_PEER', true),
+                ],
+            ],
+            'retry_after' => 90,
+            'block_for' => null,
+        ],
+
 
     ],
 
