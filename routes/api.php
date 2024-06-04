@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\TransferenciaController;
+use App\Http\Middleware\ValidarTipoPessoaMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,11 @@ Route::group(['prefix' => 'pessoa'], function () {
 });
 
 Route::group(['prefix' => 'transferencia'], function () {
-    Route::post('/transferirValores', [TransferenciaController::class, 'transferirValores'])->middleware("auth:api");
+    Route::post('/transferirValores', [TransferenciaController::class, 'transferirValores'])->middleware(
+        [
+            "auth:api",
+            ValidarTipoPessoaMiddleware::class
+        ]
+    );
 });
 

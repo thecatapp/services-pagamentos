@@ -5,7 +5,9 @@ namespace App\Entities;
 use App\Entities\Interfaces\InterfaceElaborarObjeto;
 use App\Entities\Interfaces\InterfaceError;
 use App\Entities\Interfaces\InterfaceValor;
+use App\Models\Transferencia_item;
 use Exception;
+use Illuminate\Support\Arr;
 
 class Transferencia extends AbstractTransferencia implements InterfaceValor, InterfaceError, InterfaceElaborarObjeto,\JsonSerializable
 {
@@ -62,4 +64,5 @@ class Transferencia extends AbstractTransferencia implements InterfaceValor, Int
 
         return json_encode($array);
     }
+
 }

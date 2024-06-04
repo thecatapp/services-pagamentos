@@ -1,0 +1,15 @@
+{
+  "job": "AppJobsConsumirFilaRabbit",
+  "uuid": "5335f61d-7f23-4228-9210-e2190a38fffc",
+  "data": {
+    "valorTotal": 250,
+    "transferencias": [
+      {
+        "valor": 250,
+        "pessoa_id": 2
+      }
+    ],
+    "pessoa_origem": 1
+  },
+  "attempts": 0
+}

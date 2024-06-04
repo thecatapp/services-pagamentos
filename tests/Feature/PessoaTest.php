@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enum\EnumTipoPessoa;
-use App\Helpers\HelpersFile;
+use App\Helpers\HelperTipoPessoa;
 use App\Http\Services\ServicesPessoa;
 use App\Models\Contato;
 use App\Models\Pessoa;
@@ -18,8 +18,8 @@ class PessoaTest extends TestCase
 
     protected $payloadBasico = [
         "nm_pessoa" => "Lucas Alves Cardoso de Jesus",
-        "cpf_cnpj" => "08812289908",
-        "email" => "lucasacardosoj@gmail.com"
+        "cpf_cnpj" => "08811779908",
+        "email" => "lucasac131ardosoj@gmail.com"
     ];
 
     protected ServicesPessoa | null $ServicesPessoa;
@@ -42,7 +42,7 @@ class PessoaTest extends TestCase
 
     public function testIdentificarTipoPessoa()
     {
-        $result = HelpersFile::identificarTipoPessoa($this->payloadBasico["cpf_cnpj"]);
+        $result = HelperTipoPessoa::identificarTipoPessoa($this->payloadBasico["cpf_cnpj"]);
 
         $this->assertInstanceOf(EnumTipoPessoa::class, $result);
 

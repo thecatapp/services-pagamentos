@@ -14,7 +14,8 @@ class Saldo extends Model
         "vl_saldo",
         "pessoa_id",
         "created_at",
-        "updated_at"
+        "updated_at",
+        "bo_ativo"
     ];
 
     protected $casts = [
@@ -22,6 +23,7 @@ class Saldo extends Model
         "vl_saldo" => "float",
         "pessoa_id" => "integer",
         "created_at" => "date:d-m-Y",
-        "updated_at" => "date:d-m-Y"
+        "updated_at" => "date:d-m-Y",
+        "bo_ativo"
     ];
 }
