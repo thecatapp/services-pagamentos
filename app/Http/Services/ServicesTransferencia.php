@@ -53,7 +53,7 @@ class ServicesTransferencia
 
     public function validarSaldoDisponivel(float $valorTransferencia): bool
     {
-        $saldoDisponivel = Saldo::where("pessoa_id", auth()->user()->pessoa_id)->first()->vl_saldo;
+        $saldoDisponivel = Saldo::where("pessoa_id", auth()->user()->pessoa_id)->where("bo_ativo", 1)->first()->vl_saldo;
 
         if ($saldoDisponivel < $valorTransferencia){
             throw new TransferenciaException(EnumMensagensDeErro::SALDO_INSUFICIENTE->value, Response::HTTP_CONFLICT);

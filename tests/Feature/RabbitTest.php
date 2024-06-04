@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Queue;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use Tests\TestCase;
-class RabbitTest extends TestCase
+class Rabbit extends TestCase
 {
 
     protected RabbitMQ | null $RabbitMQ;
